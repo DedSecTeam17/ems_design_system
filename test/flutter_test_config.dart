@@ -12,6 +12,9 @@
 // run, the package is the root project and its manifest lists the bare names
 // (`Roboto`, `Tajawal`). Each family is therefore registered under the name
 // the theme uses, from exactly the files the package ships.
+//
+// It also installs the golden comparator (test/helpers/ems_golden_comparator.dart):
+// exact locally, up to kCiGoldenTolerancePercent of pixels on CI.
 import 'dart:async';
 import 'dart:convert';
 
@@ -19,9 +22,12 @@ import 'package:ems_design_system/ems_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers/ems_golden_comparator.dart';
+
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   TestWidgetsFlutterBinding.ensureInitialized();
   await loadDesignSystemTestFonts();
+  installEmsGoldenComparator();
   await testMain();
 }
 

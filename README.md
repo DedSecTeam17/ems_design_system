@@ -147,6 +147,16 @@ flutter test                 # behaviour, semantics, contrast, RTL, goldens
   They were recorded on **macOS with Flutter 3.35.3**. Run them on the same
   setup, because text rasterization differs on Linux. `test/flutter_test_config.dart`
   loads the bundled fonts, so goldens show real glyphs.
+- Golden comparison is **exact locally** (0% of pixels may differ). On CI
+  (`CI=true`, set by GitHub Actions) up to **1.0%** of pixels may differ:
+  the `macos-26` runner anti-aliases glyph edges (CoreText) slightly
+  differently from the Mac the goldens were recorded on (observed at most
+  0.46%, only along text edges). A real visual change, such as a 48×48 block
+  on a 420×320 golden (≈ 1.7%), still fails. A pass within tolerance prints
+  its diff percent, so drift shows in the CI log; a failure still writes
+  `test/goldens/failures/`. The limit is `kCiGoldenTolerancePercent` in
+  `test/helpers/ems_golden_comparator.dart`. To experiment, override it
+  anywhere with a percent: `EMS_GOLDEN_TOLERANCE=0.5 flutter test`.
 - Update goldens (`flutter test --update-goldens`) only for an approved visual
   change, and list the changed images in the handoff.
 - `test/architecture_test.dart` fails if the package imports app code, GetIt,

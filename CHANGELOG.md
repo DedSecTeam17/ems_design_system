@@ -3,6 +3,17 @@
 All notable changes to `ems_design_system`. The package follows semantic
 versioning; before 1.0.0 a minor version may contain breaking changes.
 
+## Unreleased
+
+### Tests
+
+- Golden tests now use `EmsGoldenFileComparator`: still exact locally, but on
+  CI (`CI=true`) up to 1.0% of pixels may differ, because CoreText
+  anti-aliasing on the CI runner's macOS differs from the recording Mac
+  (observed at most 0.46%, along glyph edges). Override with
+  `EMS_GOLDEN_TOLERANCE` (a percent). Passes within tolerance log their diff
+  percent. No library code or golden image changed.
+
 ## 0.1.0 — 2026-10-01
 
 First version as a package. The design system was extracted from the EMS AI
