@@ -115,4 +115,51 @@ void main() {
       ),
     );
   });
+
+  // DS-36: a long address wraps to 2 lines, then ends with an ellipsis; a
+  // long region is cut to 1 line. No overflow at any text scale.
+  emsGolden('ems_notification_item_long_address', size: const Size(860, 340), (
+    context,
+  ) {
+    final ar = Localizations.localeOf(context).languageCode == 'ar';
+    return SizedBox(
+      width: 820,
+      child: Column(
+        children: [
+          EmsNotificationItem(
+            statusLabel: t(context, 'Dispatch'),
+            followLabel: t(context, 'Follow Trip'),
+            reportLabel: t(context, 'Report'),
+            location: ar
+                ? 'طريق الملك فهد، تقاطع شارع العليا العام مع طريق '
+                      'الأمير محمد بن عبدالعزيز، بجوار برج المملكة، '
+                      'حي العليا، الرياض 12214'
+                : 'King Fahd Road, intersection of Olaya Street and Prince '
+                      'Mohammed bin Abdulaziz Road, next to Kingdom Tower, '
+                      'Al Olaya District, Riyadh 12214',
+            region: ar
+                ? 'المنطقة الوسطى، قطاع شمال الرياض'
+                : 'Central region, North Riyadh sector',
+            timeAgo: '5 min',
+            status: EmsNotificationStatus.now,
+            isHighlighted: true,
+            onTap: () {},
+            onFollow: () {},
+            onReport: () {},
+          ),
+          EmsNotificationItem(
+            statusLabel: t(context, 'In Progress'),
+            followLabel: t(context, 'Follow Trip'),
+            reportLabel: t(context, 'Report'),
+            location: ar
+                ? 'مستشفى الملك فيصل التخصصي ومركز الأبحاث'
+                : 'King Faisal Specialist Hospital and Research Centre',
+            region: ar ? 'المنطقة ب' : 'Region B',
+            timeAgo: '20 min',
+            status: EmsNotificationStatus.inProgress,
+          ),
+        ],
+      ),
+    );
+  });
 }

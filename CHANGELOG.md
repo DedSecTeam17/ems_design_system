@@ -56,3 +56,14 @@ Renamed (DS-20): `NotificationStatus` → `EmsNotificationStatus`.
 `EmsFonts.latin`/`EmsFonts.arabic` are now the package-qualified family names
 (`packages/ems_design_system/Roboto` / `.../Tajawal`) instead of the bare
 names. Use the constants, never the literal strings.
+
+### Fixed
+
+- `EmsNotificationItem` no longer overflows with a long location or at a large
+  text scale (DS-36). Decision: wrap to 2 lines, then ellipsis (product owner,
+  2026-10-01). The location wraps to 2 lines then ends with an ellipsis; the
+  region (at most a third of the line) and the time are 1 line + ellipsis; the
+  Follow Trip/Report pills and the status badge are capped at a share of the
+  row and their labels wrap to 2 lines + ellipsis. Short content looks the
+  same as before. Covered by the `ems_notification_item_long_address` goldens
+  and text scale 2.0 tests (LTR and RTL).

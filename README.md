@@ -125,8 +125,10 @@ Each guarantee is covered by the package's tests.
   outline or text.
 - **Reduced motion:** animations stop when the platform disables them.
 
-One known issue is open: **DS-36**, where a long location in
-`EmsNotificationItem` can overflow (`docs/design-system/AUDIT.md`).
+`EmsNotificationItem` keeps a long location to 2 lines, then an ellipsis,
+and nothing in the row overflows up to text scale 2.0 (DS-36). One layout
+improvement is open: **DS-37**, the row at text scale 2.0 in a narrow width
+(`docs/design-system/AUDIT.md`).
 
 ## Tests
 

@@ -18,10 +18,12 @@ enum EmsNotificationStatus {
 
 /// Notification list row with status badge, location, time, and actions.
 class EmsNotificationItem extends StatelessWidget {
-  /// Primary line: the incident location.
+  /// Primary line: the incident location. Wraps to 2 lines, then ends with
+  /// an ellipsis (DS-36).
   final String location;
 
-  /// Secondary line: the region.
+  /// Secondary text next to the location: the region. One line, at most a
+  /// third of the line's width, then an ellipsis.
   final String region;
 
   /// Already-localized relative time (e.g. "5 min ago").
@@ -85,70 +87,117 @@ class EmsNotificationItem extends StatelessWidget {
           width: isHighlighted ? 2 : 1,
         ),
       ),
-      child: Row(
-        children: [
-          // ── Left: back arrow + actions ──
-          _CircleIconButton(icon: Icons.arrow_back_ios_new, onTap: onTap),
-          const SizedBox(width: EmsSpacing.md),
-          _FollowTripChip(label: followLabel, onTap: onFollow),
-          const SizedBox(width: EmsSpacing.sm),
-          _ReportsButton(
-            label: reportLabel,
-            onTap: onReport,
-            isEnabled: status == EmsNotificationStatus.now && onReport != null,
-          ),
+      // DS-36: the action pills and the status badge are capped at a share
+      // of the row, so at a large text scale or in a narrow row their labels
+      // wrap (2 lines, then ellipsis) instead of pushing the row past its
+      // edge. Below the caps (normal scale) they keep their natural width.
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          return Row(
+            children: [
+              // ── Left: back arrow + actions ──
+              _CircleIconButton(icon: Icons.arrow_back_ios_new, onTap: onTap),
+              const SizedBox(width: EmsSpacing.md),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: width * _followShare),
+                child: _FollowTripChip(label: followLabel, onTap: onFollow),
+              ),
+              const SizedBox(width: EmsSpacing.sm),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: width * _reportShare),
+                child: _ReportsButton(
+                  label: reportLabel,
+                  onTap: onReport,
+                  isEnabled:
+                      status == EmsNotificationStatus.now && onReport != null,
+                ),
+              ),
+              // Keeps a long region from touching the Report pill.
+              const SizedBox(width: EmsSpacing.md),
 
-          // ── Center: location info (takes remaining space) ──
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+              // ── Center: location info (takes remaining space) ──
+              // DS-36: every text here is flexible. The location (primary line)
+              // wraps to 2 lines, then ellipsis, so crews see most of a long
+              // address; the region takes at most a third of the line (1 line,
+              // ellipsis) and the time is 1 line with ellipsis.
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Flexible(
-                      child: Text(
-                        region,
-                        style: EmsTypography.of(
-                          context,
-                        ).bodySmall.copyWith(color: c.textSecondary),
-                        overflow: TextOverflow.ellipsis,
+                    LayoutBuilder(
+                      builder: (context, constraints) => Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: constraints.maxWidth / 3,
+                            ),
+                            child: Text(
+                              region,
+                              style: EmsTypography.of(
+                                context,
+                              ).bodySmall.copyWith(color: c.textSecondary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: EmsSpacing.xs),
+                          Flexible(
+                            child: Text(
+                              location,
+                              style: EmsTypography.of(context).bodyMedium
+                                  .copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: c.textPrimary,
+                                  ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                          const SizedBox(width: EmsSpacing.sm),
+                          Icon(
+                            Icons.location_on,
+                            size: EmsIconSize.sm,
+                            color: c.accent(EmsAccent.location),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: EmsSpacing.xs),
+                    const SizedBox(height: EmsSpacing.xs),
                     Text(
-                      location,
-                      style: EmsTypography.of(context).bodyMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: c.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: EmsSpacing.sm),
-                    Icon(
-                      Icons.location_on,
-                      size: EmsIconSize.sm,
-                      color: c.accent(EmsAccent.location),
+                      timeAgo,
+                      style: EmsTypography.of(
+                        context,
+                      ).caption.copyWith(color: c.textHint),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-                const SizedBox(height: EmsSpacing.xs),
-                Text(
-                  timeAgo,
-                  style: EmsTypography.of(
-                    context,
-                  ).caption.copyWith(color: c.textHint),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: EmsSpacing.xl),
+              ),
+              const SizedBox(width: EmsSpacing.xl),
 
-          // ── Right: status badge (pinned to end) ──
-          _StatusBadge(status: status, label: statusLabel),
-        ],
+              // ── Right: status badge (pinned to end) ──
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: width * _badgeShare),
+                child: _StatusBadge(status: status, label: statusLabel),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
+
+  // Largest share of the row each fixed part may take (DS-36). Together they
+  // leave the location at least about 40% of the row, minus the back button
+  // and gaps.
+  static const double _followShare = 0.22;
+  static const double _reportShare = 0.18;
+  static const double _badgeShare = 0.18;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -188,6 +237,9 @@ class _StatusBadge extends StatelessWidget {
       child: Text(
         label,
         textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        textWidthBasis: TextWidthBasis.longestLine,
         style: EmsTypography.of(
           context,
         ).labelLarge.copyWith(color: c.onToneContainer(tone)),
@@ -275,10 +327,15 @@ class _FollowTripChip extends StatelessWidget {
                 color: enabled ? c.onPrimaryContainer : c.textDisabled,
               ),
               const SizedBox(width: EmsSpacing.sm),
-              Text(
-                label,
-                style: EmsTypography.of(context).labelLarge.copyWith(
-                  color: enabled ? c.onPrimaryContainer : c.textDisabled,
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textWidthBasis: TextWidthBasis.longestLine,
+                  style: EmsTypography.of(context).labelLarge.copyWith(
+                    color: enabled ? c.onPrimaryContainer : c.textDisabled,
+                  ),
                 ),
               ),
             ],
@@ -333,10 +390,15 @@ class _ReportsButton extends StatelessWidget {
                 color: isEnabled ? c.onInfoContainer : c.textDisabled,
               ),
               const SizedBox(width: EmsSpacing.sm),
-              Text(
-                label,
-                style: EmsTypography.of(context).labelLarge.copyWith(
-                  color: isEnabled ? c.onInfoContainer : c.textDisabled,
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textWidthBasis: TextWidthBasis.longestLine,
+                  style: EmsTypography.of(context).labelLarge.copyWith(
+                    color: isEnabled ? c.onInfoContainer : c.textDisabled,
+                  ),
                 ),
               ),
             ],

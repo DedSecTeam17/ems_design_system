@@ -1,5 +1,6 @@
 import 'package:ems_design_system/ems_design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/ems_test_app.dart';
@@ -135,5 +136,55 @@ void main() {
       expect(taps['report'], 0);
       expect(find.text('Done'), findsOneWidget);
     });
+
+    // DS-36: the location wraps to 2 lines, then ellipsis; nothing in the row
+    // overflows, in LTR and RTL, up to text scale 2.0.
+    const longLocation =
+        'King Fahd Road, intersection of Olaya Street and Prince Mohammed '
+        'bin Abdulaziz Road, next to Kingdom Tower, Al Olaya District, '
+        'Riyadh 12214, Kingdom of Saudi Arabia';
+    for (final rtl in [false, true]) {
+      for (final width in [600.0, 800.0, 1024.0]) {
+        testWidgets(
+          'keeps a long location to 2 lines with no overflow when the text '
+          'scale is 2.0 (${rtl ? 'RTL' : 'LTR'}, ${width.toInt()} dp)',
+          (tester) async {
+            await pumpEms(
+              tester,
+              SizedBox(
+                width: width - 32,
+                child: EmsNotificationItem(
+                  location: longLocation,
+                  region: 'Central region, North Riyadh sector',
+                  timeAgo: '5 min ago',
+                  status: EmsNotificationStatus.now,
+                  statusLabel: rtl ? 'إرسال' : 'Dispatch',
+                  followLabel: rtl ? 'متابعة الرحلة' : 'Follow Trip',
+                  reportLabel: rtl ? 'تقرير' : 'Report',
+                  onTap: () {},
+                  onFollow: () {},
+                  onReport: () {},
+                ),
+              ),
+              rtl: rtl,
+              textScale: 2.0,
+              size: Size(width, 600),
+            );
+
+            expect(tester.takeException(), isNull);
+            final text = tester.widget<Text>(find.text(longLocation));
+            expect(text.maxLines, 2);
+            expect(text.overflow, TextOverflow.ellipsis);
+            final paragraph = tester.renderObject<RenderParagraph>(
+              find.text(longLocation),
+            );
+            // The address is long enough to be cut, and is cut at 2 lines.
+            expect(paragraph.didExceedMaxLines, isTrue);
+            final lineHeight = paragraph.preferredLineHeight;
+            expect(paragraph.size.height, lessThanOrEqualTo(lineHeight * 2.5));
+          },
+        );
+      }
+    }
   });
 }

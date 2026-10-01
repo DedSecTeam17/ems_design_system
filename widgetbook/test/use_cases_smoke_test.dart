@@ -33,13 +33,9 @@ List<(String, String)> _useCases() {
 }
 
 /// Use cases with a known defect, skipped with their DS finding ID (the
-/// project's known-bug convention) until the fix is approved.
-const _knownIssues = {
-  'navigation/emsnotificationitem/playground':
-      'DS-36 known issue — the location text is not flexible and overflows '
-      'the row when it is long (needs-decision: ellipsis or wrap); '
-      'docs/design-system/AUDIT.md',
-};
+/// project's known-bug convention) until the fix is approved. Empty since
+/// DS-36 was fixed.
+const _knownIssues = <String, String>{};
 
 void main() {
   final useCases = _useCases();
