@@ -1,0 +1,31 @@
+name: ems_widgetbook
+description: Widgetbook catalog of the EMS design system (local only, D12).
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.35.3"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  ems_design_system:
+    path: ..
+  # Pinned to the 3.21 line: 3.22+ needs Flutter >= 3.38 (VISUAL_PROPOSAL §5).
+  widgetbook: ">=3.21.0 <3.22.0"
+  widgetbook_annotation: ">=3.10.0 <3.11.0"
+  # Widgetbook's own UI uses Cupertino icons.
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  widgetbook_generator: ">=3.21.0 <3.22.0"
+  build_runner: ^2.4.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

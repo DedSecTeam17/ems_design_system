@@ -1,0 +1,8 @@
+# Package build state (the app's root .gitignore only ignores its own /build/).
+.dart_tool/
+build/
+.flutter-plugins-dependencies
+# A library doesn't pin its dependencies; the consuming app's lock file does.
+/pubspec.lock
+# Written by golden tests when an image doesn't match.
+test/goldens/failures/

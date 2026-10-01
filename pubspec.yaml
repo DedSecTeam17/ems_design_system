@@ -1,0 +1,50 @@
+name: ems_design_system
+description: >-
+  EMS design system: tokens, the EmsTheme (light/dark, English/Arabic),
+  EmsLocalizations and the Ems* widgets used by the EMS AI Mobile app.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.35.3"
+
+# The library itself only needs Flutter. Everything else is for tests.
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  # The test harness registers the Material/Widgets/Cupertino delegates the
+  # way the app does, so Arabic goldens render with Arabic Material strings.
+  flutter_localizations:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  # Material Icons are used by several components (and loaded by the golden
+  # harness).
+  uses-material-design: true
+
+  # Bundled fonts (decision D9): weights 400/500/700 only. Consumers get them
+  # as `packages/ems_design_system/Roboto` and
+  # `packages/ems_design_system/Tajawal` (see EmsFonts); EmsTheme names them.
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/latin/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/latin/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/latin/Roboto-Bold.ttf
+          weight: 700
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/arabic/Tajawal-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/arabic/Tajawal-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/arabic/Tajawal-Bold.ttf
+          weight: 700

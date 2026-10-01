@@ -1,0 +1,11 @@
+Copyright Wave-Tech. All rights reserved.
+
+This software is proprietary and confidential. It is for Wave-Tech internal
+use only. No part of it may be copied, distributed, modified or used outside
+Wave-Tech without prior written permission.
+
+Third-party components bundled with this package keep their own licences:
+- Roboto font files (assets/fonts/latin/): Apache License 2.0,
+  see assets/fonts/latin/LICENSE.txt.
+- Tajawal font files (assets/fonts/arabic/): SIL Open Font License 1.1,
+  see assets/fonts/arabic/OFL.txt.

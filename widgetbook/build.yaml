@@ -1,0 +1,10 @@
+# Widgetbook code generation.
+#
+# Privacy (VISUAL_PROPOSAL §5, decision D12): widgetbook_generator ships a
+# `telemetry` builder that posts a usage report (including the git remote
+# owner URL and the use-case names) to Mixpanel. It is disabled here.
+targets:
+  $default:
+    builders:
+      widgetbook_generator:telemetry:
+        enabled: false
