@@ -9,28 +9,33 @@ Arabic. Legibility, contrast, tap targets and predictable behaviour come first.
 - Version: `0.1.0` (pre-1.0: minor versions may change the API; see `CHANGELOG.md`)
 - Toolchain: Flutter `3.35.3`, Dart `^3.9.2`
 - Dependencies: Flutter only
-- Licence: proprietary, Wave-Tech internal (`LICENSE`). Bundled fonts keep their
-  own licences (below).
+- Licence: proprietary, source-visible, all rights reserved (`LICENSE`). Bundled
+  fonts keep their own licences (below).
 
 ## Install
 
-Inside this repository the app depends on the package by path:
-
-```yaml
-dependencies:
-  ems_design_system:
-    path: packages/ems_design_system
-```
-
-After the move to its own private repository (decision D12):
+Depend on a tagged release over HTTPS (the repository is public, so no
+credentials are needed):
 
 ```yaml
 dependencies:
   ems_design_system:
     git:
-      url: git@github.com:Wave-Tech-SA/ems_design_system.git
+      url: https://github.com/DedSecTeam17/ems_design_system.git
       ref: v0.1.0
 ```
+
+To work on the package and the app together, clone this repository next to the
+app and add a `pubspec_overrides.yaml` (git-ignored, never committed) in the app:
+
+```yaml
+dependency_overrides:
+  ems_design_system:
+    path: ../ems_design_system
+```
+
+Delete the override and run `flutter pub get` before committing the app's
+`pubspec.lock`, so the lock file keeps pointing at the git tag.
 
 Import the public API from the one barrel file. Never import `src/` files.
 
@@ -128,12 +133,11 @@ Each guarantee is covered by the package's tests.
 `EmsNotificationItem` keeps a long location to 2 lines, then an ellipsis,
 and nothing in the row overflows up to text scale 2.0 (DS-36). One layout
 improvement is open: **DS-37**, the row at text scale 2.0 in a narrow width
-(`docs/design-system/AUDIT.md`).
+(`docs/design-system/AUDIT.md` in the EMS AI Mobile app repository).
 
 ## Tests
 
 ```bash
-cd packages/ems_design_system
 flutter pub get
 flutter analyze
 flutter test                 # behaviour, semantics, contrast, RTL, goldens
@@ -155,7 +159,7 @@ package by path. It uses Widgetbook 3.21 (the last line that supports Flutter
 3.35). Generator telemetry is disabled in `widgetbook/build.yaml`.
 
 ```bash
-cd packages/ems_design_system/widgetbook
+cd widgetbook
 flutter pub get
 dart run build_runner build -d   # regenerates lib/main.directories.g.dart
 flutter run -d chrome            # or: flutter build web --release

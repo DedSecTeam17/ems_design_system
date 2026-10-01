@@ -1,8 +1,9 @@
 Copyright Wave-Tech. All rights reserved.
 
-This software is proprietary and confidential. It is for Wave-Tech internal
-use only. No part of it may be copied, distributed, modified or used outside
-Wave-Tech without prior written permission.
+The source code is published for reference only. It is proprietary to
+Wave-Tech: no part of it may be copied, distributed, modified or used without
+prior written permission from Wave-Tech. Publishing the source does not grant
+any licence to use it.
 
 Third-party components bundled with this package keep their own licences:
 - Roboto font files (assets/fonts/latin/): Apache License 2.0,

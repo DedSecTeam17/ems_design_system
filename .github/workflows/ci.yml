@@ -1,0 +1,97 @@
+name: CI
+
+# Analyze, test (incl. goldens) and build the Widgetbook catalog.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: "3.35.3"
+
+
+jobs:
+  package:
+    name: Analyze and test the package
+    # Goldens were recorded on macOS with Flutter 3.35.3; text rasterization
+    # differs on Linux, so the golden tests run on macOS.
+    runs-on: macos-26
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Verify toolchain
+        run: |
+          test "$(flutter --version --machine | jq -r '.frameworkVersion')" = "$FLUTTER_VERSION"
+          flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test (behaviour, contrast, RTL, goldens)
+        run: flutter test
+
+      - name: Upload golden failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures
+          path: test/goldens/failures/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  widgetbook:
+    name: Build the Widgetbook catalog
+    runs-on: macos-26
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: widgetbook
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # build.yaml disables widgetbook_generator's telemetry builder (D12).
+      - name: Generate use-case directories
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Generated code is up to date
+        run: git diff --exit-code -- lib/main.directories.g.dart
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Smoke-test every use case
+        run: flutter test
+
+      - name: Build for the web
+        run: flutter build web --release
